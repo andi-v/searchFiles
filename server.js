@@ -2,42 +2,51 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-http.createServer((req, res) => {
-    const dirPath1 = 'D:/IMAGES/motivationals';
-    const dirPath2 = 'D:/IMAGES/motivationals_june1'; // bigger directory
+function printResult(result) {
+    console.log(`There are ${result.newFiles.length} new files,` + 
+                ` having ${result.newFilesSize/1048576} MB :`);
+    for (let i in result.newFiles)
+        console.log(result.newFiles[i]);
+}
 
-    fs.readdir(dirPath2, (err, files) => {
-        if (err) {
-            console.error("Could not list the dir.", err);
-        }
-
-        let newFilesSize = 0;
-
-        // Iterate 2nd folder's files and
-        // check if present in 1st folder also
-        files.forEach( (file, index) => {
-            const filePath1 = path.join(dirPath1, file);
-            const filePath2 = path.join(dirPath2, file);
-            let currentFileSize = 0;
-            
-            // fs.stat(filePath2, (err, stats) => {
-            //     currentFileSize = stats.size;
-            // });
-            let stats = fs.statSync(filePath2);
-            currentFileSize = stats.size;
-            console.log(currentFileSize + " bytes");
-            
-            try {
-                stats = fs.statSync(filePath1);
+function determineFiles(processResult) {
+        const oldDirPath = "D:/IMAGES/Others'/Co";
+        const newDirPath = "D:/IMAGES/Others'/Co - Copy"; // bigger directory
+    
+        fs.readdir(newDirPath, (err, files) => {
+            if (err) {
+                console.error("Could not list the dir.", err);
             }
-            catch (err) {
-                newFilesSize += currentFileSize;
-            }
-            // if (stats.error) {
-            //     newFilesSize += currentFileSize;
-            // }
+    
+            let result = {
+                newFilesSize : 0,
+                newFiles : [],
+            };
+    
+            // Iterate the new folder's files and
+            // check if present in the old folder also
+            files.forEach( (file, index) => {
+                const filePath1 = path.join(oldDirPath, file);
+                const filePath2 = path.join(newDirPath, file);
+                var currentFileSize = 0;
+                
+                fs.stat(filePath2, (err, stats) => {
+                    currentFileSize = stats.size;
+    
+                    fs.stat(filePath1, (err, stats) => {
+                        if (err) {
+                            result.newFilesSize += currentFileSize;
+                            result.newFiles.push(file);
+                        }
+                        if (index == files.length-1){
+                            processResult(result);
+                        }
+                    });
+                });
+            });
         });
+}
 
-        console.log(`New files have ${newFilesSize/1048576} MB`);
-    });
+http.createServer((req, res) => {
+    determineFiles(printResult);
 }).listen(8081);
