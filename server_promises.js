@@ -13,8 +13,8 @@ async function determineFiles() {
     const oldDirPath = "D:/IMAGES/Others'/Co";
     const newDirPath = "D:/IMAGES/Others'/Co - Copy"; // bigger directory
 
-    const files = await fs.readdir(newDirPath); // daca vrei sa tratezi err-ul, bagi await-ul in try
-                                                // readdir nu returneaza err, ci il arunca
+    const files = await fs.readdir(newDirPath); // daca vrei sa tratezi err, bagi await-ul in try
+                                                // readdir nu returneaza err, il arunca
     let result = {
         newFilesSize : 0,
         newFiles : [],
@@ -40,14 +40,14 @@ async function determineFiles() {
         //     processResult(result);
         // }
     });
-    await Promise.all(filePromises); // combina mai multe promise-uri in 1 care se va termina
-                                    // cand se termina toate
+    await Promise.all(filePromises); // combina mai multe promise-uri in 1 
+                                     // care se termina cand se termina toate
     return result;
 }
 
 http.createServer(async (req, res) => {
     const fileResult = await determineFiles(); // tot ce CONTINE async, DEVINE async
-                                            // deci await-ezi toate fctiile dupa care trebuie sa astepti
+                                            // => await toate fctiile dupa care astepti
     printResult(fileResult);
     process.exit();
 }).listen(8081);
