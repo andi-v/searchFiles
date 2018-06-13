@@ -22,7 +22,7 @@ async function determineFiles() {
 
     // Iterate the new folder's files and
     // check if present in the old folder also
-    const filePromises = files.map( async (file) => {
+    const filePromises = files.map( async (file) => {   // returneaza promise gol 
         const oldFilePath = path.join(oldDirPath, file);
         const newFilePath = path.join(newDirPath, file);
 
@@ -47,7 +47,7 @@ async function determineFiles() {
 
 http.createServer(async (req, res) => {
     const fileResult = await determineFiles(); // tot ce CONTINE async, DEVINE async
-                                            // => await toate fctiile dupa care astepti
+                                               // => await toate fctiile dupa care astepti
     printResult(fileResult);
     process.exit();
 }).listen(8081);
